@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
     bool jumped;
 
+
+    [SerializeField] float lowerBound_jumpForce = 0;
     void accelerate()
     {
         velocity_x += acceleration * Time.deltaTime;
@@ -64,22 +66,11 @@ public class PlayerMovement : MonoBehaviour
         // Jumping
         if (Input.GetKeyDown(KeyCode.Space) && !jumped) jump();
         if (Input.GetKeyUp(KeyCode.Space) && jumped) current_jump_force = current_jump_force * 0.7f;
-        if (current_jump_force > 0) current_jump_force -= altitude_decrement * Time.deltaTime;
+        if (current_jump_force > lowerBound_jumpForce) current_jump_force -= altitude_decrement * Time.deltaTime;
 
          
         // movement on y-axis
         velocity.y = (gravity + current_jump_force) * Time.deltaTime;
-
-        /*
-        if (velocity.magnitude > max_speed) velocity = velocity.normalized * max_speed;
-
-        velocity.y += (current_jump_force) * Time.deltaTime;
-
-
-        if (current_jump_force > 0) current_jump_force -= altitude_decrement * Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.Space) && !jumped) jump();
-        */
     }
 
 
