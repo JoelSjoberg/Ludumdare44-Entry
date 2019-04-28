@@ -19,6 +19,8 @@ public class EnemyDash : MonoBehaviour
     Rigidbody rb;
     Health h;
 
+    [SerializeField] SpriteRenderer sr;
+    [SerializeField] Animator anim;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,30 +29,41 @@ public class EnemyDash : MonoBehaviour
         pd = GetComponentInChildren<player_detector>();
         cc = GetComponent<CharacterController>();
         startPos = transform.position;
+        timer = leadup;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (rb.velocity.x > 0) sr.flipX = true;
+        else sr.flipX = false;
 
-        if (recoveryTimer > 0)
+        if (!h.dead)
         {
-            recoveryTimer -= Time.deltaTime;
-        }
-        else if(pd.playerDetected())
-        {
-            
+            anim.SetTrigger("dead");
+            if (recoveryTimer > 0)
+            {
+                recoveryTimer -= Time.deltaTime;
+            }
+
+            else if (pd.playerDetected())
+            {
+                print("Player detected");
                 if (timer < leadup) timer += Time.deltaTime;
 
                 // Re-check statement just in case the player is out of reach 
                 else if (pd.playerDetected())
                 {
-                    
+                    print("Here it goes");
                     rb.AddForce(pd.getPlayer().position - transform.position);
+                    anim.SetBool("attack", true);
                     h.dangerous = true;
+                }
+
             }
-            
-        } 
+        }
+
+
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -74,6 +87,7 @@ public class EnemyDash : MonoBehaviour
             
         }
         h.dangerous = false;
+        anim.SetBool("attack", false);
         yield return 0;
     }
 }

@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     bool jumped;
 
 
+
     [SerializeField] float lowerBound_jumpForce = 0;
 
     [SerializeField] float attack_force = 1;
@@ -33,6 +34,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]float attack_speed = 1;
 
     Health health;
+
+    [SerializeField] SpriteRenderer sr;
+    [SerializeField] Animator anim;
 
     void accelerate(float acceleration, float max_speed)
     {
@@ -110,13 +114,16 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (velocity.x < 0) sr.flipX = true;
+        else sr.flipX = false;
 
             // Attacking, should take priority over movement
-            if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !health.dangerous)
+            if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !health.dangerous && !health.dead)
             {
+                anim.SetTrigger("attack");
                 StartCoroutine(attack());
             }
-            else if (!health.dangerous)
+            else if (!health.dangerous && !health.dead)
             {
                 // Movement on x-axis
                 if (Input.GetAxisRaw("Horizontal") != 0)
@@ -144,6 +151,8 @@ public class PlayerMovement : MonoBehaviour
         {
             ch.Move(velocity);
         }
+        else anim.SetTrigger("dead");
+
     }
 
     private void jump()
@@ -155,5 +164,16 @@ public class PlayerMovement : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if(hit.transform.tag == "Ground") jumped = false;
+    }
+
+    // It is too hard to attack enemies right now, use this trigger to deal damage to them
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Enemy" && health.dangerous)
+        {
+            print(other.name);
+            other.GetComponent<Health>().takeDamage();
+            health.heal();
+        }
     }
 }

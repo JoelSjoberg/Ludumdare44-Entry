@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 public class Health : MonoBehaviour
 {
     [SerializeField] float maxHp;
@@ -13,15 +14,24 @@ public class Health : MonoBehaviour
 
     [HideInInspector]public bool invulnerable = false;
 
+    [SerializeField] Image hpBar;
+
     // if no invulnerability is allowed: set invulTime to 0
     [SerializeField] float invulTime = 1f;
     float timer = 0;
 
+
+    float originalBarWidth;
     // Start is called before the first frame update
     void Start()
     {
         timer = invulTime;
         hp = maxHp;
+
+        if (hpBar != null)
+        {
+            originalBarWidth = hpBar.rectTransform.sizeDelta.x;
+        }
     }
 
     IEnumerator countInvulTime()
@@ -41,6 +51,8 @@ public class Health : MonoBehaviour
     // Simple hp system
     public void takeDamage()
     {
+
+        
         if (!dead && !invulnerable)
         {
             hp -= 1;
@@ -53,34 +65,43 @@ public class Health : MonoBehaviour
             } 
         }
 
+        if (hpBar != null)
+        {
+            hpBar.rectTransform.sizeDelta = new Vector2(hp * originalBarWidth / maxHp, hpBar.rectTransform.sizeDelta.y);
+        }
         if (hp <= 0)
         {
             dead = true;
             if (transform.tag != "Player")
             {
                 transform.GetComponent<Rigidbody>().isKinematic = false;
-                Destroy(this.gameObject, 0.5f);
+
+                if (this.name != "boss")
+                {
+                    Destroy(this.gameObject, 0.5f);
+                }
+                else
+                {
+                    Invoke("loadEndScene", 3f);
+                }
             } 
         } 
     }
 
-    IEnumerator destroydelay(float delay = 1f)
+    void loadEndScene()
     {
-        float timer = 0;
-
-        while (timer < delay)
-        {
-            timer += Time.deltaTime;
-            yield return null;
-        }
-        Destroy(this.gameObject);
-        yield return 0;
+        SceneManager.LoadScene("thankyou");
     }
+
     public void heal()
     {
         if (hp < maxHp)
         {
             hp += 1;
+        }
+        if (hpBar != null)
+        {
+            hpBar.rectTransform.sizeDelta = new Vector2(hp * originalBarWidth / maxHp, hpBar.rectTransform.sizeDelta.y);
         }
     }
     public void revive()
@@ -89,33 +110,11 @@ public class Health : MonoBehaviour
         dead = false;
         dangerous = false;
         invulnerable = false;
-    }
-
-
-    /*
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (!invulnerable)
+        if (hpBar != null)
         {
-
-            print("Health collision between: " + this.tag + " and "+ hit.transform.tag);
-            // If both are attacking, deal no damage and bounce them off each other
-            if (hit.transform.tag == "Enemy" && dangerous && hit.transform.GetComponent<Health>().dangerous)
-            {
-                hit.transform.GetComponent<Rigidbody>().AddForce((transform.position - hit.transform.position).normalized * 2);
-                GetComponent<Rigidbody>().AddForce((hit.transform.position - transform.position).normalized * 2);
-            }
-            if (hit.transform.tag == "Enemy" && dangerous && !hit.transform.GetComponent<Health>().invulnerable)
-            {
-                hit.transform.GetComponent<Rigidbody>().AddForce((transform.position - hit.transform.position).normalized * 2);
-
-                // Deal damage and gain 1 hp
-                hit.transform.GetComponent<Health>().takeDamage();
-                heal();
-            }
+            hpBar.rectTransform.sizeDelta = new Vector2(hp * originalBarWidth / maxHp, hpBar.rectTransform.sizeDelta.y);
         }
     }
-    */
     // Same for non character controller entities
     private void OnCollisionEnter(Collision collision)
     {
@@ -131,22 +130,24 @@ public class Health : MonoBehaviour
                     startShake(transform);
                     
                 }
-                if ((collision.transform.tag == "Enemy" || collision.transform.tag == "Player") && dangerous && !collision.transform.GetComponent<Health>().invulnerable)
+                else if ((collision.transform.tag == "Enemy" || collision.transform.tag == "Player") && dangerous && !collision.transform.GetComponent<Health>().invulnerable)
                 {
-                collision.transform.GetComponent<Rigidbody>().AddForce((transform.position - collision.transform.position).normalized * 2);
+                    collision.transform.GetComponent<Rigidbody>().AddForce((transform.position - collision.transform.position).normalized * 2);
 
-                startShake(collision.transform);
-                // Deal damage and gain 1 hp
-                collision.transform.GetComponent<Health>().takeDamage();
-                heal();
-                print(transform.tag + " Attacked " + collision.transform.tag + ", collision hp: " + collision.transform.GetComponent<Health>().hp);
+                    startShake(collision.transform);
+                    // Deal damage and gain 1 hp
+                    print("Should heal now");
+                    collision.transform.GetComponent<Health>().takeDamage();
+                    heal();
+                    print(transform.tag + " Attacked " + collision.transform.tag + ", collision hp: " + collision.transform.GetComponent<Health>().hp);
             }
             }
     }
 
+    [SerializeField] float shakeDuration = 0.2f, shakeIntensity = 0.02f;
     public void startShake(Transform t)
     {
-        StartCoroutine(shake(0.2f, 0.02f, t));
+        StartCoroutine(shake(shakeDuration, shakeIntensity, t));
     }
     IEnumerator shake(float t, float intensity, Transform transform, float timer = 0)
     {

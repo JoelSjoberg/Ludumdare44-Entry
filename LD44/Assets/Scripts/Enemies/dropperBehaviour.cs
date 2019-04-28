@@ -11,6 +11,7 @@ public class dropperBehaviour : MonoBehaviour
 
     Rigidbody rb;
 
+    [SerializeField]SpriteRenderer sr;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -18,6 +19,9 @@ public class dropperBehaviour : MonoBehaviour
     void FixedUpdate()
     {
         dropTimer += Time.deltaTime;
+
+        if (rb.velocity.x >= 0) sr.flipX = true;
+        else sr.flipX = false;
 
         if (playerTransform != null)
         {

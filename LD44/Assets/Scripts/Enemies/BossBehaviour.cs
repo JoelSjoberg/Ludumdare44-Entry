@@ -14,6 +14,10 @@ public class BossBehaviour : MonoBehaviour
 
 
     Health h;
+    [SerializeField] SpriteRenderer sr;
+    [SerializeField] Animator anim;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,8 +34,14 @@ public class BossBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (playerTransform != null)
+
+
+        if (rb.velocity.x > 0) sr.flipX = true;
+        else sr.flipX = false;
+
+        if (h.dead) anim.SetTrigger("hurt");
+
+        if (playerTransform != null && !h.dead)
         {
             if (chooseNext)
             {
@@ -71,6 +81,7 @@ public class BossBehaviour : MonoBehaviour
     // Once after all any attack he will hover towards the center for a few seconds
     IEnumerator hoverToCenter(float duration)
     {
+        anim.SetTrigger("idle");
         h.dangerous = false;
         chooseNext = false;
         float timer = 0;
@@ -88,6 +99,7 @@ public class BossBehaviour : MonoBehaviour
 
     IEnumerator hoverAndAttack(float restTime = 0.7f)
     {
+
         // Do not choose another attack while performing this
         chooseNext = false;
         // Follow for duration
@@ -96,6 +108,7 @@ public class BossBehaviour : MonoBehaviour
 
         h.dangerous = true;
         float speed = 50f;
+        anim.SetTrigger("attack");
 
             while (timer < duration)
             {
@@ -110,6 +123,7 @@ public class BossBehaviour : MonoBehaviour
 
     IEnumerator bounceAttack()
     {
+        anim.SetTrigger("aim");
         chooseNext = false;
         rb.velocity = Vector3.zero;
         rb.isKinematic = true;
@@ -124,7 +138,7 @@ public class BossBehaviour : MonoBehaviour
         }
 
         // Once done, charge downward
-
+        anim.SetTrigger("attack");
         rb.isKinematic = false;
         h.dangerous = true;
         while(h.dangerous)
@@ -140,7 +154,7 @@ public class BossBehaviour : MonoBehaviour
 
     IEnumerator dropBombs()
     {
-
+        anim.SetTrigger("aim");
         chooseNext = false;
         // drop "times" bombs with "interval" between each bomb
         float timer = 0, interval = 0.3f, times = 5, counter = 0;
@@ -165,6 +179,7 @@ public class BossBehaviour : MonoBehaviour
         rb.isKinematic = false;
         if (Random.Range(0, 3) > 1.5)
         {
+            anim.SetTrigger("attack");
             // at random, charge down like the bounce attack
             print("Charge down");
             rb.isKinematic = false;
@@ -200,7 +215,7 @@ public class BossBehaviour : MonoBehaviour
     }
     IEnumerator shake(float t, float intensity, Transform transform, float timer = 0)
     {
-
+        anim.SetTrigger("hurt");
         Vector3 origin = transform.position;
 
         while (timer < t)

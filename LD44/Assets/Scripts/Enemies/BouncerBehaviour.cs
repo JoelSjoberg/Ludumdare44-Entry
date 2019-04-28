@@ -18,6 +18,8 @@ public class BouncerBehaviour : MonoBehaviour
 
     Health health;
 
+    [SerializeField]Animator anim;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -46,14 +48,20 @@ public class BouncerBehaviour : MonoBehaviour
         {
             if (!health.dead)
             {
+
                 Bounce();
                 timer = 0;
+            }
+            else
+            {
+                anim.SetTrigger("dead");
             }
         }
     }
 
     void Bounce()
     {
+        anim.SetTrigger("bounce");
         hitGround = false;
         
         rb.AddForce(new Vector3(0, upwardforce, 0));
@@ -69,13 +77,13 @@ public class BouncerBehaviour : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.tag == "Untagged" && !hitGround && s_timer > seismicDuration)
+        if (collision.transform.tag == "Untagged" && !hitGround && s_timer > seismicDuration && !health.dead)
         {
             hitGround = true;
             s_timer = 0;
             StartCoroutine(shake(time, intensity, collision.transform));
         }
-        if (collision.transform.tag == "Enemy")
+        if (collision.transform.tag == "Enemy" && !health.dead)
         {
             Destroy(collision.transform.gameObject);
         }
