@@ -59,7 +59,7 @@ public class Health : MonoBehaviour
             if (transform.tag != "Player")
             {
                 transform.GetComponent<Rigidbody>().isKinematic = false;
-                Destroy(this.gameObject, 1f);
+                Destroy(this.gameObject, 0.5f);
             } 
         } 
     }

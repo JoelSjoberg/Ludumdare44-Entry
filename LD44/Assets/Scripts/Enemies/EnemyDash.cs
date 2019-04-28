@@ -47,10 +47,7 @@ public class EnemyDash : MonoBehaviour
                 {
                     
                     rb.AddForce(pd.getPlayer().position - transform.position);
-
-
-                    if (rb.velocity.magnitude > 0.1f) h.dangerous = true;
-                    else h.dangerous = false;
+                    h.dangerous = true;
             }
             
         } 
@@ -60,8 +57,23 @@ public class EnemyDash : MonoBehaviour
         if (collision.transform.tag == "Player")
         {
             recoveryTimer = recover;
-            h.dangerous = false;
+            StartCoroutine(disableDanger());
             timer = 0;
         }
+    }
+
+    // Avoid bug where danger is made false too quickly for damage to be dealt.
+    IEnumerator disableDanger()
+    {
+        float t = 0.2f;
+
+        while (t > 0)
+        {
+            t -= Time.deltaTime;
+            yield return 0;
+            
+        }
+        h.dangerous = false;
+        yield return 0;
     }
 }

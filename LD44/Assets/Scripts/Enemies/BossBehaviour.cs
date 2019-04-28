@@ -24,6 +24,7 @@ public class BossBehaviour : MonoBehaviour
     public void setTarget(Transform t)
     {
         playerTransform = t;
+        StartCoroutine(hoverToCenter(4));
     }
 
     // Update is called once per frame
