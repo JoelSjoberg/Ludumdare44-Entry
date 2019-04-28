@@ -54,7 +54,6 @@ public class EnemyDash : MonoBehaviour
                 // Re-check statement just in case the player is out of reach 
                 else if (pd.playerDetected())
                 {
-                    print("Here it goes");
                     rb.AddForce(pd.getPlayer().position - transform.position);
                     anim.SetBool("attack", true);
                     h.dangerous = true;

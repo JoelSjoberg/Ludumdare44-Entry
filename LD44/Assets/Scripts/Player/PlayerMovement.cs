@@ -120,6 +120,7 @@ public class PlayerMovement : MonoBehaviour
             // Attacking, should take priority over movement
             if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !health.dangerous && !health.dead)
             {
+            audioManager.playSound("attack");
                 anim.SetTrigger("attack");
                 StartCoroutine(attack());
             }
@@ -157,13 +158,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void jump()
     {
+        audioManager.playSound("jump");
         current_jump_force = jump_force;
         jumped = true;
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(hit.transform.tag == "Ground") jumped = false;
+        if (hit.transform.tag == "Ground" && jumped)
+        {
+            jumped = false;
+            audioManager.playSound("land");
+        }
     }
 
     // It is too hard to attack enemies right now, use this trigger to deal damage to them
@@ -171,7 +177,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.tag == "Enemy" && health.dangerous)
         {
-            print(other.name);
+            other.GetComponent<Health>().takeDamage();
+            health.heal();
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "Enemy" && health.dangerous)
+        {
             other.GetComponent<Health>().takeDamage();
             health.heal();
         }

@@ -11,6 +11,7 @@ public class player_detector : MonoBehaviour
     {
         if (other.transform.tag == "Player")
         {
+            audioManager.playSound("ghost");
             player_detected = true;
             player_t = other.transform;
         }

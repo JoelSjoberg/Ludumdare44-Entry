@@ -27,6 +27,7 @@ public class BossBehaviour : MonoBehaviour
 
     public void setTarget(Transform t)
     {
+        audioManager.playSound("boss_begin");
         playerTransform = t;
         StartCoroutine(hoverToCenter(4));
     }
@@ -109,7 +110,7 @@ public class BossBehaviour : MonoBehaviour
         h.dangerous = true;
         float speed = 50f;
         anim.SetTrigger("attack");
-
+        audioManager.playSound("boss_attack");
             while (timer < duration)
             {
                 timer += Time.deltaTime;

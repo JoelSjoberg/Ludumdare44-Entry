@@ -32,6 +32,13 @@ public class Health : MonoBehaviour
         {
             originalBarWidth = hpBar.rectTransform.sizeDelta.x;
         }
+
+        // the player can start with a penalty (only 3 hp) and increase that to max hp (about 10?)
+        if (tag == "Player")
+        {
+            hp = 3;
+            hpBar.rectTransform.sizeDelta = new Vector2(hp * originalBarWidth / maxHp, hpBar.rectTransform.sizeDelta.y);
+        }
     }
 
     IEnumerator countInvulTime()
@@ -61,6 +68,7 @@ public class Health : MonoBehaviour
             // if the player is hit
             if (transform.tag == "Player")
             {
+                audioManager.playSound("hurt");
                 transform.GetComponent<PlayerMovement>().stun();
             } 
         }
