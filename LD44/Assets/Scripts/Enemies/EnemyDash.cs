@@ -17,9 +17,12 @@ public class EnemyDash : MonoBehaviour
 
     bool attacking = false;
     Rigidbody rb;
+    Health h;
+
     // Start is called before the first frame update
     void Start()
     {
+        h = GetComponent<Health>();
         rb = GetComponent<Rigidbody>();
         pd = GetComponentInChildren<player_detector>();
         cc = GetComponent<CharacterController>();
@@ -42,8 +45,13 @@ public class EnemyDash : MonoBehaviour
                 // Re-check statement just in case the player is out of reach 
                 else if (pd.playerDetected())
                 {
+                    
                     rb.AddForce(pd.getPlayer().position - transform.position);
-                }
+
+
+                    if (rb.velocity.magnitude > 0.1f) h.dangerous = true;
+                    else h.dangerous = false;
+            }
             
         } 
     }
@@ -52,6 +60,7 @@ public class EnemyDash : MonoBehaviour
         if (collision.transform.tag == "Player")
         {
             recoveryTimer = recover;
+            h.dangerous = false;
             timer = 0;
         }
     }

@@ -15,10 +15,14 @@ public class BouncerBehaviour : MonoBehaviour
     bool hitGround = false;
     float seismicDuration = 0.5f;
     float s_timer;
+
+    Health health;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         interval += Random.Range(-1.2f, 1.2f);
+        health = GetComponent<Health>();
     }
     // Update is called once per frame
     void Update()
@@ -30,12 +34,21 @@ public class BouncerBehaviour : MonoBehaviour
             hitGround = false;
         }
 
-        if (rb.velocity.y < 0) rb.velocity -= new Vector3(0, Time.deltaTime * downwardAccel, 0);
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity -= new Vector3(0, Time.deltaTime * downwardAccel, 0);
+            health.dangerous = true;
+        }
+        else health.dangerous = false; 
+
         if (timer < interval) timer += Time.deltaTime;
         else
         {
-            Bounce();
-            timer = 0;
+            if (!health.dead)
+            {
+                Bounce();
+                timer = 0;
+            }
         }
     }
 
@@ -50,7 +63,7 @@ public class BouncerBehaviour : MonoBehaviour
     {
         if (other.tag == "Player" && hitGround)
         {
-            print("Player should take damage from bouncer");
+            other.transform.GetComponent<Health>().takeDamage();
         }
     }
 

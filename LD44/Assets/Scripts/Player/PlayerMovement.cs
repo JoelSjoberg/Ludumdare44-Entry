@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     CharacterController ch;
     float velocity_x = 0;
-    Vector3 movement;
     Vector3 velocity;
     float trajectory = 0;
 
@@ -26,57 +25,125 @@ public class PlayerMovement : MonoBehaviour
 
 
     [SerializeField] float lowerBound_jumpForce = 0;
-    void accelerate()
+
+    [SerializeField] float attack_force = 1;
+    bool invulnerable = false;
+   
+
+    [SerializeField]float attack_speed = 1;
+
+    Health health;
+
+    void accelerate(float acceleration, float max_speed)
     {
         velocity_x += acceleration * Time.deltaTime;
         if (velocity_x > max_speed) velocity_x = max_speed;
         
     }
-    void decellerate()
+    void decellerate(float decceleration)
     {
         velocity_x -= decceleration * Time.deltaTime;
         if (velocity_x <= 0) velocity_x = 0;
     }
 
+    IEnumerator attack()
+    {
+        health.dangerous = true;
+        trajectory = Input.GetAxisRaw("Horizontal");
+        // Speed up
+        while (Mathf.Abs(velocity.x) < attack_speed)
+        {
+            accelerate(acceleration * 11f, attack_speed);
+            velocity = new Vector3(velocity_x * trajectory, 0, 0);
+            yield return null;
+        }
+
+        // Slow down
+        while (Mathf.Abs(velocity.x) > 0.1f)
+        {
+            decellerate(decceleration * 13);
+            velocity = new Vector3(velocity_x * trajectory, 0, 0);
+            
+            yield return null;
+        }
+        velocity = Vector3.zero;
+        health.dangerous = false;
+
+        yield return 0;
+    }
+
+    // slow down for a moment when hit
+    public void stun()
+    {
+        startShake(this.transform);
+    }
+
+    [SerializeField] float time = 0.1f, intensity = 0.08f;
+
+    public void startShake(Transform t)
+    {
+        StartCoroutine(shake(time, intensity, t));
+    }
+    IEnumerator shake(float t, float intensity, Transform transform, float timer = 0)
+    {
+
+        Vector3 origin = transform.position;
+
+        while (timer < t)
+        {
+            transform.position = origin;
+            timer += Time.deltaTime;
+            transform.position += (Vector3)Random.insideUnitCircle * intensity;
+            yield return null;
+        }
+        transform.position = origin;
+    }
+
     void Awake()
     {
-        movement = Vector3.zero;
         velocity = Vector3.zero;
 
         ch = GetComponent<CharacterController>();
+        health = GetComponent<Health>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Movement on x-axis
-        if (Input.GetAxisRaw("Horizontal") != 0)
-        {
-            accelerate();
-            trajectory = Input.GetAxisRaw("Horizontal");
-        }
-        else decellerate();
-        movement = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
 
-        velocity.x = velocity_x * trajectory;
+            // Attacking, should take priority over movement
+            if (Input.GetKeyDown(KeyCode.LeftShift) && Input.GetAxisRaw("Horizontal") != 0 && !health.dangerous)
+            {
+                StartCoroutine(attack());
+            }
+            else if (!health.dangerous)
+            {
+                // Movement on x-axis
+                if (Input.GetAxisRaw("Horizontal") != 0)
+                {
+                    accelerate(acceleration, max_speed);
+                    trajectory = Input.GetAxisRaw("Horizontal");
+                }
+                else decellerate(decceleration);
 
+                velocity.x = velocity_x * trajectory;
 
+                // Jumping
+                if (Input.GetKeyDown(KeyCode.Space) && !jumped) jump();
+                if (Input.GetKeyUp(KeyCode.Space) && jumped) current_jump_force = current_jump_force * 0.7f;
+                if (current_jump_force > lowerBound_jumpForce) current_jump_force -= altitude_decrement * Time.deltaTime;
 
-        
-        // Jumping
-        if (Input.GetKeyDown(KeyCode.Space) && !jumped) jump();
-        if (Input.GetKeyUp(KeyCode.Space) && jumped) current_jump_force = current_jump_force * 0.7f;
-        if (current_jump_force > lowerBound_jumpForce) current_jump_force -= altitude_decrement * Time.deltaTime;
-
-         
-        // movement on y-axis
-        velocity.y = (gravity + current_jump_force) * Time.deltaTime;
+                // movement on y-axis
+                velocity.y = (gravity + current_jump_force) * Time.deltaTime;
+            }
     }
-
 
     private void FixedUpdate()
     {
-        ch.Move(velocity);
+        if (!health.dead)
+        {
+            ch.Move(velocity);
+        }
     }
 
     private void jump()

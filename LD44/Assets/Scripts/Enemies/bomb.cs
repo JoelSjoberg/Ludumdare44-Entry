@@ -7,7 +7,7 @@ public class bomb : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Player" || other.transform.tag == "Untagged") print("bomb collided with player");
+        if (other.transform.tag == "Player") other.transform.GetComponent<Health>().takeDamage();
         Destroy(this.gameObject);
     }
 }

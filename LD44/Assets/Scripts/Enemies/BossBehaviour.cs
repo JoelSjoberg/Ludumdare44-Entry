@@ -10,13 +10,14 @@ public class BossBehaviour : MonoBehaviour
     bool chooseNext = true;
     Rigidbody rb;
 
-    bool dangerous = false;
-
     [SerializeField]GameObject bomb;
 
+
+    Health h;
     // Start is called before the first frame update
     void Start()
     {
+        h = GetComponent<Health>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -69,8 +70,8 @@ public class BossBehaviour : MonoBehaviour
     // Once after all any attack he will hover towards the center for a few seconds
     IEnumerator hoverToCenter(float duration)
     {
+        h.dangerous = false;
         chooseNext = false;
-        dangerous = false;
         float timer = 0;
         rb.useGravity = false;
         while (timer < duration)
@@ -92,12 +93,13 @@ public class BossBehaviour : MonoBehaviour
         float timer = 0;
         float duration = 1.3f;
 
-        dangerous = true;
+        h.dangerous = true;
         float speed = 50f;
 
             while (timer < duration)
             {
                 timer += Time.deltaTime;
+                h.dangerous = true;
                 rb.AddForce((playerTransform.position - transform.position).normalized * speed);
                 yield return null;
             }
@@ -123,8 +125,8 @@ public class BossBehaviour : MonoBehaviour
         // Once done, charge downward
 
         rb.isKinematic = false;
-        dangerous = true;
-        while(dangerous)
+        h.dangerous = true;
+        while(h.dangerous)
         {
             rb.velocity += Vector3.down * 2;
             yield return null;
@@ -165,8 +167,8 @@ public class BossBehaviour : MonoBehaviour
             // at random, charge down like the bounce attack
             print("Charge down");
             rb.isKinematic = false;
-            dangerous = true;
-            while (dangerous)
+            h.dangerous = true;
+            while (h.dangerous)
             {
                 rb.velocity += Vector3.down * 2;
                 yield return null;
@@ -176,7 +178,7 @@ public class BossBehaviour : MonoBehaviour
         }
         else
         {
-            dangerous = false;
+            h.dangerous = false;
             StartCoroutine(hoverToCenter(2f));
             yield return 0;
 
@@ -212,21 +214,21 @@ public class BossBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Player" && dangerous)
+        if (other.tag == "Player" && h.dangerous)
         {
-            dangerous = false;
+            other.transform.GetComponent<Health>().takeDamage();
             print("Player should take damage from boss bounce");
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (dangerous)
+        if (h.dangerous)
         {
             if (collision.transform.tag == "Untagged")
             {
                 StartCoroutine(shake(time, intensity, collision.transform));
-                dangerous = false;
+                h.dangerous = false;
             }
             if (collision.transform.tag == "Enemy")
             {

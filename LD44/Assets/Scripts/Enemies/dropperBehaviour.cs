@@ -26,7 +26,7 @@ public class dropperBehaviour : MonoBehaviour
                 dropTimer = 0;
                 drop();
 
-                rb.AddForce(new Vector3((playerTransform.position.x - transform.position.x) * 100, 0, 0));
+                rb.AddForce(new Vector3((playerTransform.position.x - transform.position.x) * 50, 0, 0));
             }
 
             transform.position = Vector3.MoveTowards(transform.position,

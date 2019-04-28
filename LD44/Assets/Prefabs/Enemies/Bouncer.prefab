@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 8532373213298011865}
   - component: {fileID: 8532373213298011876}
   - component: {fileID: 8532373213298011879}
+  - component: {fileID: 5141377687477170139}
+  - component: {fileID: 1194313628}
   m_Layer: 0
   m_Name: Bouncer
   m_TagString: Enemy
@@ -140,3 +142,37 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 6.26, y: 0.19, z: 1}
   m_Center: {x: 0, y: -0.44, z: 0}
+--- !u!114 &5141377687477170139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8532373213298011870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 624b241b08e58864b88f8c66ed612132, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 1
+  dead: 0
+  dangerous: 0
+  invulnerable: 0
+  invulTime: 0
+--- !u!114 &1194313628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8532373213298011870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 624b241b08e58864b88f8c66ed612132, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 1
+  dead: 0
+  dangerous: 0
+  invulnerable: 0
+  invulTime: 0
